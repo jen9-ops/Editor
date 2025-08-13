@@ -6,12 +6,12 @@ html, body {
     overflow: hidden; /* Важно: предотвращает горизонтальную прокрутку */
     
     /* CSS Variables for Body Background Settings */
-    --body-background-color: #e0f2f7;
+    --body-background-color: #e0f2f7; /* Now includes alpha via rgba() */
     --body-background-image: none;
     --body-background-size: auto;
     --body-background-repeat: no-repeat;
     --body-background-position: center;
-    --body-background-opacity: 1;
+    --body-background-opacity: 1; /* Overall body opacity */
 
     /* CSS Variables for Body Filters */
     --body-filter-blur: 0px;
@@ -29,7 +29,7 @@ html, body {
     background-size: var(--body-background-size);
     background-repeat: var(--body-background-repeat);
     background-position: var(--body-background-position);
-    opacity: var(--body-background-opacity); /* Apply opacity to body */
+    opacity: var(--body-background-opacity); /* Apply overall opacity to body */
     filter: blur(var(--body-filter-blur))
             grayscale(var(--body-filter-grayscale))
             brightness(var(--body-filter-brightness))
@@ -487,12 +487,12 @@ html, body {
 
     /* CSS Variables for Element Specific Settings */
     --element-z-index: 1;
-    --element-bg-color: #6366f1;
+    --element-bg-color: #6366f1; /* Now includes alpha via rgba() */
     --element-bg-image: none;
     --element-bg-size: auto;
     --element-bg-repeat: no-repeat;
     --element-bg-position: center;
-    --element-opacity: 1;
+    --element-opacity: 1; /* Overall element opacity */
 
     --element-filter-blur: 0px;
     --element-filter-grayscale: 0%;
@@ -535,6 +535,7 @@ html, body {
 .designer-element.selected { /* Для визуального выделения выбранного элемента */
     outline: 2px dashed #3b82f6;
     outline-offset: 4px;
+    box-shadow: 0 0 10px 5px rgba(59, 130, 246, 0.5); /* Добавляем легкое свечение при выборе */
 }
 
 /* Ручка для изменения размера */
