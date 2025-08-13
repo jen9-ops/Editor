@@ -44,6 +44,8 @@
             <h3 class="sidebar-section-title">Фон страницы (Body)</h3>
             <label for="bodyBgColorPicker" class="sidebar-label">Цвет фона:</label>
             <input type="color" id="bodyBgColorPicker" class="sidebar-input color-input" value="#e0f2f7">
+            <label for="bodyBgAlpha" class="sidebar-label mt-2">Прозрачность цвета фона:</label>
+            <input type="range" id="bodyBgAlpha" min="0" max="1" step="0.01" value="1" class="sidebar-input range-input">
 
             <label for="bodyBgImageUrl" class="sidebar-label mt-2">URL изображения:</label>
             <input type="text" id="bodyBgImageUrl" class="sidebar-input" placeholder="https://placehold.co/1200x800/222222/FFFFFF?text=Background">
@@ -76,7 +78,7 @@
                 <option value="bottom right">Вниз вправо</option>
             </select>
 
-            <label for="bodyBackgroundOpacity" class="sidebar-label mt-2">Прозрачность:</label>
+            <label for="bodyBackgroundOpacity" class="sidebar-label mt-2">Общая прозрачность Body:</label>
             <input type="range" id="bodyBackgroundOpacity" min="0" max="1" step="0.01" value="1" class="sidebar-input range-input">
             
             <label for="bodyFilterBlur" class="sidebar-label mt-2">Размытие (px):</label>
@@ -100,7 +102,7 @@
             <select id="bodyBackgroundAnimation" class="sidebar-select">
                 <option value="none">Нет</option>
                 <option value="pan">Панорамирование</option>
-                <option value="zoom">Масштабарование</option>
+                <option value="zoom">Масштабирование</option>
             </select>
             <label for="bodyAnimationDuration" class="sidebar-label mt-2">Скорость анимации (сек):</label>
             <input type="number" id="bodyAnimationDuration" min="1" step="0.5" value="10" class="sidebar-input">
@@ -144,11 +146,14 @@
 
             <label for="elementZIndex" class="mt-4">Z-Index:</label>
             <input type="number" id="elementZIndex" value="1" min="0">
+            <p class="text-xs text-gray-400 mb-2">Определяет порядок наложения элементов. Большее значение - выше слой.</p>
 
             <div class="settings-section">
                 <h3 class="section-title">Настройки фона элемента</h3>
                 <label for="elementBgColor">Цвет фона:</label>
                 <input type="color" id="elementBgColor" value="#6366f1">
+                <label for="elementBgAlpha" class="mt-2">Прозрачность цвета фона:</label>
+                <input type="range" id="elementBgAlpha" min="0" max="1" step="0.01" value="1">
 
                 <label for="elementImageUrl">URL изображения:</label>
                 <input type="text" id="elementImageUrl" placeholder="https://placehold.co/400x300/000000/FFFFFF?text=Element+Bg">
@@ -180,7 +185,7 @@
                     <option value="bottom right">Вниз вправо</option>
                 </select>
 
-                <label for="elementOpacity">Прозрачность:</label>
+                <label for="elementOpacity">Общая прозрачность элемента:</label>
                 <input type="range" id="elementOpacity" min="0" max="1" step="0.01" value="1">
                 
                 <label for="elementFilterBlur" class="mt-2">Размытие (px):</label>
@@ -209,6 +214,83 @@
                 <label for="elementAnimationDuration" class="mt-2">Скорость анимации (сек):</label>
                 <input type="number" id="elementAnimationDuration" min="1" step="0.5" value="10">
                 <button class="btn-sm mt-2" id="resetElementBgFiltersBtn">Сбросить фильтры элемента</button>
+            </div>
+
+            <div class="settings-section">
+                <h3 class="section-title">Границы и размеры</h3>
+                <label for="elementBorder">Рамка (например, "2px solid #ccc"):</label>
+                <input type="text" id="elementBorder" value="none">
+                <label for="elementBorderStyle">Стиль границы:</label>
+                <select id="elementBorderStyle">
+                    <option value="none">Нет</option>
+                    <option value="solid">Solid</option>
+                    <option value="dashed">Dashed</option>
+                    <option value="dotted">Dotted</option>
+                    <option value="double">Double</option>
+                    <option value="groove">Groove</option>
+                    <option value="ridge">Ridge</option>
+                    <option value="inset">Inset</option>
+                    <option value="outset">Outset</option>
+                </select>
+
+                <label for="elementBorderRadius">Радиус скругления (px):</label>
+                <input type="number" id="elementBorderRadius" value="8" min="0">
+
+                <label for="elementWidth">Ширина (px, 0 для авто):</label>
+                <input type="number" id="elementWidth" placeholder="0" min="0">
+                <button class="btn-sm mt-2" id="stretchWidthBtn">Растянуть на 100% (ширина)</button>
+
+                <label for="elementHeight">Высота (px, 0 для авто):</label>
+                <input type="number" id="elementHeight" placeholder="0" min="0">
+                <button class="btn-sm mt-2" id="stretchHeightBtn">Растянуть на 100% (высота)</button>
+
+                <h4 class="section-subtitle mt-4">Внешние отступы (Margin)</h4>
+                <label for="elementMarginTop">Вверх:</label>
+                <input type="number" id="elementMarginTop" value="0">
+                <select id="elementMarginUnit" class="unit-select">
+                    <option value="px">px</option>
+                    <option value="em">em</option>
+                    <option value="rem">rem</option>
+                    <option value="%">%</option>
+                </select>
+                <label for="elementMarginRight">Вправо:</label>
+                <input type="number" id="elementMarginRight" value="0">
+                <label for="elementMarginBottom">Вниз:</label>
+                <input type="number" id="elementMarginBottom" value="0">
+                <label for="elementMarginLeft">Влево:</label>
+                <input type="number" id="elementMarginLeft" value="0">
+                <button class="btn-sm mt-2" id="resetElementMarginBtn">Сбросить Margin</button>
+
+
+                <h4 class="section-subtitle mt-4">Внутренние отступы (Padding)</h4>
+                <label for="elementPaddingTop">Вверх:</label>
+                <input type="number" id="elementPaddingTop" value="0.7">
+                 <select id="elementPaddingUnit" class="unit-select">
+                    <option value="px">px</option>
+                    <option value="em">em</option>
+                    <option value="rem" selected>rem</option>
+                    <option value="%">%</option>
+                </select>
+                <label for="elementPaddingRight">Вправо:</label>
+                <input type="number" id="elementPaddingRight" value="1.2">
+                <label for="elementPaddingBottom">Вниз:</label>
+                <input type="number" id="elementPaddingBottom" value="0.7">
+                <label for="elementPaddingLeft">Влево:</label>
+                <input type="number" id="elementPaddingLeft" value="1.2">
+                <button class="btn-sm mt-2" id="resetElementPaddingBtn">Сбросить Padding</button>
+
+                <h4 class="section-subtitle mt-4">Тень блока</h4>
+                <label for="elementBoxShadowColor">Цвет тени блока:</label>
+                <input type="color" id="elementBoxShadowColor" value="#000000">
+                <label for="elementBoxShadowOffsetX">Смещение X (px):</label>
+                <input type="number" id="elementBoxShadowOffsetX" value="0">
+                <label for="elementBoxShadowOffsetY">Смещение Y (px):</label>
+                <input type="number" id="elementBoxShadowOffsetY" value="3">
+                <label for="elementBoxShadowBlur">Размытие (px):</label>
+                <input type="number" id="elementBoxShadowBlur" value="10" min="0">
+                <label for="elementBoxShadowSpread">Размер распространения (px):</label>
+                <input type="number" id="elementBoxShadowSpread" value="0">
+                <button class="btn-sm mt-2" id="resetElementBoxShadowBtn">Сбросить тень блока</button>
             </div>
 
             <div class="settings-section">
@@ -271,81 +353,6 @@
                 <label for="elementTextShadowOffsetY">Смещение Y (px):</label>
                 <input type="number" id="elementTextShadowOffsetY" value="0">
                 <button class="btn-sm mt-2" id="resetElementTextShadowBtn">Сбросить тень текста</button>
-            </div>
-
-            <div class="settings-section">
-                <h3 class="section-title">Границы и размеры</h3>
-                <label for="elementBorder">Рамка (например, "2px solid #ccc"):</label>
-                <input type="text" id="elementBorder" value="none">
-                <label for="elementBorderStyle">Стиль границы:</label>
-                <select id="elementBorderStyle">
-                    <option value="none">Нет</option>
-                    <option value="solid">Solid</option>
-                    <option value="dashed">Dashed</option>
-                    <option value="dotted">Dotted</option>
-                    <option value="double">Double</option>
-                    <option value="groove">Groove</option>
-                    <option value="ridge">Ridge</option>
-                    <option value="inset">Inset</option>
-                    <option value="outset">Outset</option>
-                </select>
-
-                <label for="elementBorderRadius">Радиус скругления (px):</label>
-                <input type="number" id="elementBorderRadius" value="8" min="0">
-
-                <label for="elementWidth">Ширина (px, 0 для авто):</label>
-                <input type="number" id="elementWidth" placeholder="0" min="0">
-
-                <label for="elementHeight">Высота (px, 0 для авто):</label>
-                <input type="number" id="elementHeight" placeholder="0" min="0">
-
-                <h4 class="section-subtitle mt-4">Внешние отступы (Margin)</h4>
-                <label for="elementMarginTop">Вверх:</label>
-                <input type="number" id="elementMarginTop" value="0">
-                <select id="elementMarginUnit" class="unit-select">
-                    <option value="px">px</option>
-                    <option value="em">em</option>
-                    <option value="rem">rem</option>
-                    <option value="%">%</option>
-                </select>
-                <label for="elementMarginRight">Вправо:</label>
-                <input type="number" id="elementMarginRight" value="0">
-                <label for="elementMarginBottom">Вниз:</label>
-                <input type="number" id="elementMarginBottom" value="0">
-                <label for="elementMarginLeft">Влево:</label>
-                <input type="number" id="elementMarginLeft" value="0">
-                <button class="btn-sm mt-2" id="resetElementMarginBtn">Сбросить Margin</button>
-
-
-                <h4 class="section-subtitle mt-4">Внутренние отступы (Padding)</h4>
-                <label for="elementPaddingTop">Вверх:</label>
-                <input type="number" id="elementPaddingTop" value="0.7">
-                 <select id="elementPaddingUnit" class="unit-select">
-                    <option value="px">px</option>
-                    <option value="em">em</option>
-                    <option value="rem" selected>rem</option>
-                    <option value="%">%</option>
-                </select>
-                <label for="elementPaddingRight">Вправо:</label>
-                <input type="number" id="elementPaddingRight" value="1.2">
-                <label for="elementPaddingBottom">Вниз:</label>
-                <input type="number" id="elementPaddingBottom" value="0.7">
-                <label for="elementPaddingLeft">Влево:</label>
-                <input type="number" id="elementPaddingLeft" value="1.2">
-                <button class="btn-sm mt-2" id="resetElementPaddingBtn">Сбросить Padding</button>
-
-                <h4 class="section-subtitle mt-4">Тень блока</h4>
-                <label for="elementBoxShadowColor">Цвет тени блока:</label>
-                <input type="color" id="elementBoxShadowColor" value="#000000">
-                <label for="elementBoxShadowOffsetX">Смещение X (px):</label>
-                <input type="number" id="elementBoxShadowOffsetX" value="0">
-                <label for="elementBoxShadowOffsetY">Смещение Y (px):</label>
-                <input type="number" id="elementBoxShadowOffsetY" value="3">
-                <label for="elementBoxShadowBlur">Размытие (px):</label>
-                <input type="number" id="elementBoxShadowBlur" value="10" min="0">
-                <label for="elementBoxShadowSpread">Размер распространения (px):</label>
-                <input type="number" id="elementBoxShadowSpread" value="0">
-                <button class="btn-sm mt-2" id="resetElementBoxShadowBtn">Сбросить тень блока</button>
             </div>
 
 
