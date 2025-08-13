@@ -6,8 +6,8 @@
     <title>Продвинутый Конструктор Страниц</title>
     <!-- Подключаем Tailwind CSS для базовых утилит -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Встроенные CSS стили (будут заполнены JavaScript'ом) -->
-    <style id="main-styles"></style>
+    <!-- Подключаем ВНЕШНИЙ CSS файл -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -100,7 +100,7 @@
             <select id="bodyBackgroundAnimation" class="sidebar-select">
                 <option value="none">Нет</option>
                 <option value="pan">Панорамирование</option>
-                <option value="zoom">Масштабирование</option>
+                <option value="zoom">Масштабарование</option>
             </select>
             <label for="bodyAnimationDuration" class="sidebar-label mt-2">Скорость анимации (сек):</label>
             <input type="number" id="bodyAnimationDuration" min="1" step="0.5" value="10" class="sidebar-input">
@@ -363,76 +363,9 @@
         <pre><code id="generatedCodeContent"></code></pre>
     </div>
 
-    <!-- Встроенный JavaScript код (будет заполнен JavaScript'ом) -->
-    <script id="main-script"></script>
     <!-- Firebase SDK (только для работы с Firestore) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Глобальные переменные, предоставленные Canvas (НЕ ИЗМЕНЯТЬ)
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let db, auth, currentUserId;
-
-        // Инициализация Firebase и аутентификация
-        async function initFirebase() {
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        currentUserId = user.uid;
-                        console.log("Firebase User ID:", currentUserId);
-                        document.getElementById('userIdDisplay').textContent = currentUserId;
-                        document.getElementById('appIdDisplay').textContent = appId;
-                    } else {
-                        // Если нет пользователя, попробуем войти анонимно или с токеном
-                        try {
-                            if (initialAuthToken) {
-                                const userCredential = await signInWithCustomToken(auth, initialAuthToken);
-                                currentUserId = userCredential.user.uid;
-                                console.log("Signed in with custom token:", currentUserId);
-                            } else {
-                                const userCredential = await signInAnonymously(auth);
-                                currentUserId = userCredential.user.uid;
-                                console.log("Signed in anonymously:", currentUserId);
-                            }
-                            document.getElementById('userIdDisplay').textContent = currentUserId;
-                            document.getElementById('appIdDisplay').textContent = appId;
-                        } catch (error) {
-                            console.error("Firebase Auth Error:", error);
-                            document.getElementById('statusMessage').textContent = `Ошибка аутентификации: ${error.message}`;
-                            currentUserId = null; // Устанавливаем в null, если аутентификация не удалась
-                        }
-                    }
-                });
-
-                // Прикрепляем Firestore API к глобальному window для доступа из main.js
-                window.firebaseServices = {
-                    db: db,
-                    auth: auth,
-                    getDoc: getDoc,
-                    setDoc: setDoc,
-                    doc: doc,
-                    get currentUserId() { return currentUserId; }, // Геттер для получения актуального userId
-                    get appId() { return appId; }
-                };
-
-                console.log("Firebase initialized and exposed to window.");
-
-            } catch (error) {
-                console.error("Failed to initialize Firebase:", error);
-                document.getElementById('statusMessage').textContent = `Ошибка инициализации Firebase: ${error.message}`;
-            }
-        }
-
-        initFirebase();
-    </script>
+    <script type="module" src="firebase-init.js"></script>
+    <!-- Подключаем ВНЕШНИЙ JavaScript файл -->
+    <script src="script.js" defer></script>
 </body>
 </html>
