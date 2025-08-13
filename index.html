@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Продвинутый Конструктор Страниц</title>
+    <!-- Подключаем Tailwind CSS для базовых утилит -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Встроенные CSS стили (будут заполнены JavaScript'ом) -->
+    <style id="main-styles"></style>
+</head>
+<body>
+
+    <!-- Кнопка для открытия бокового навбара -->
+    <button class="open-sidebar-btn" id="openSidebarBtn">
+        <img src="https://cdn-icons-png.flaticon.com/128/3917/3917058.png" alt="Меню" class="h-6 w-6">
+    </button>
+
+    <!-- Боковой навигационный бар -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            Меню
+            <!-- Кнопка закрытия внутри навбара -->
+            <button class="sidebar-toggle-btn" id="closeSidebarBtn">
+                &times;
+            </button>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" class="rounded-lg">Главная</a></li>
+                <li><a href="#" class="rounded-lg">О нас</a></li>
+                <li><a href="#" class="rounded-lg">Услуги</a></li>
+                <li><a href="#" class="rounded-lg">Контакты</a></li>
+            </ul>
+        </nav>
+        <button class="sidebar-btn" id="createButtonBtn">Создать элемент</button>
+        <button class="sidebar-btn" id="showCodeBtn">Показать код</button>
+        <button class="sidebar-btn sidebar-btn-save" id="saveProjectBtn">Сохранить проект</button>
+        <button class="sidebar-btn sidebar-btn-load" id="loadProjectBtn">Загрузить проект</button>
+        <div id="statusMessage" class="status-message"></div>
+
+        <!-- Настройки фонового изображения BODY (глобальные) -->
+        <div class="sidebar-section">
+            <h3 class="sidebar-section-title">Фон страницы (Body)</h3>
+            <label for="bodyBgColorPicker" class="sidebar-label">Цвет фона:</label>
+            <input type="color" id="bodyBgColorPicker" class="sidebar-input color-input" value="#e0f2f7">
+
+            <label for="bodyBgImageUrl" class="sidebar-label mt-2">URL изображения:</label>
+            <input type="text" id="bodyBgImageUrl" class="sidebar-input" placeholder="https://placehold.co/1200x800/222222/FFFFFF?text=Background">
+            <button class="sidebar-btn small-btn" id="applyBodyBgImageBtn">Применить URL</button>
+
+            <label for="bodyBgImageUpload" class="sidebar-label mt-2">Или загрузить локально:</label>
+            <input type="file" id="bodyBgImageUpload" class="sidebar-input file-input">
+            
+            <label for="bodyBackgroundSize" class="sidebar-label mt-2">Размер фона:</label>
+            <select id="bodyBackgroundSize" class="sidebar-select">
+                <option value="auto">Авто</option>
+                <option value="cover">Покрыть</option>
+                <option value="contain">Вписать</option>
+            </select>
+
+            <label for="bodyBackgroundRepeat" class="sidebar-label mt-2">Повторение фона:</label>
+            <select id="bodyBackgroundRepeat" class="sidebar-select">
+                <option value="no-repeat">Не повторять</option>
+                <option value="repeat">Повторять</option>
+                <option value="repeat-x">Повторять по X</option>
+                <option value="repeat-y">Повторять по Y</option>
+            </select>
+
+            <label for="bodyBackgroundPosition" class="sidebar-label mt-2">Позиция фона:</label>
+            <select id="bodyBackgroundPosition" class="sidebar-select">
+                <option value="center">Центр</option>
+                <option value="top left">Вверх влево</option>
+                <option value="top right">Вверх вправо</option>
+                <option value="bottom left">Вниз влево</option>
+                <option value="bottom right">Вниз вправо</option>
+            </select>
+
+            <label for="bodyBackgroundOpacity" class="sidebar-label mt-2">Прозрачность:</label>
+            <input type="range" id="bodyBackgroundOpacity" min="0" max="1" step="0.01" value="1" class="sidebar-input range-input">
+            
+            <label for="bodyFilterBlur" class="sidebar-label mt-2">Размытие (px):</label>
+            <input type="range" id="bodyFilterBlur" min="0" max="10" step="0.1" value="0" class="sidebar-input range-input">
+            <label for="bodyFilterGrayscale" class="sidebar-label">Оттенки серого (%):</label>
+            <input type="range" id="bodyFilterGrayscale" min="0" max="100" step="1" value="0" class="sidebar-input range-input">
+            <label for="bodyFilterBrightness" class="sidebar-label">Яркость (%):</label>
+            <input type="range" id="bodyFilterBrightness" min="0" max="200" step="1" value="100" class="sidebar-input range-input">
+            <label for="bodyFilterContrast" class="sidebar-label">Контрастность (%):</label>
+            <input type="range" id="bodyFilterContrast" min="0" max="200" step="1" value="100" class="sidebar-input range-input">
+            <label for="bodyFilterSepia" class="sidebar-label">Сепия (%):</label>
+            <input type="range" id="bodyFilterSepia" min="0" max="100" step="1" value="0" class="sidebar-input range-input">
+            <label for="bodyFilterHueRotate" class="sidebar-label">Вращение оттенка (deg):</label>
+            <input type="range" id="bodyFilterHueRotate" min="0" max="360" step="1" value="0" class="sidebar-input range-input">
+            <label for="bodyFilterInvert" class="sidebar-label">Инверсия (%):</label>
+            <input type="range" id="bodyFilterInvert" min="0" max="100" step="1" value="0" class="sidebar-input range-input">
+            <label for="bodyFilterSaturate" class="sidebar-label">Насыщенность (%):</label>
+            <input type="range" id="bodyFilterSaturate" min="0" max="200" step="1" value="100" class="sidebar-input range-input">
+
+            <label for="bodyBackgroundAnimation" class="sidebar-label mt-2">Анимация фона:</label>
+            <select id="bodyBackgroundAnimation" class="sidebar-select">
+                <option value="none">Нет</option>
+                <option value="pan">Панорамирование</option>
+                <option value="zoom">Масштабирование</option>
+            </select>
+            <label for="bodyAnimationDuration" class="sidebar-label mt-2">Скорость анимации (сек):</label>
+            <input type="number" id="bodyAnimationDuration" min="1" step="0.5" value="10" class="sidebar-input">
+
+            <button class="sidebar-btn small-btn mt-4" id="clearBodyBgBtn">Очистить Фон Body</button>
+            <button class="sidebar-btn small-btn mt-2" id="resetBodyFiltersBtn">Сбросить Фильтры Body</button>
+        </div>
+
+        <!-- Дополнительный контент или футер навбара -->
+        <div class="mt-auto p-4 text-gray-400 text-sm border-t border-gray-700 mx-6 pt-4">
+            <p>App ID: <span id="appIdDisplay"></span></p>
+            <p>User ID: <span id="userIdDisplay"></span></p>
+            &copy; 2024 Конструктор
+        </div>
+    </div>
+
+    <!-- Оверлей для затемнения фона -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Основной контент страницы (холст для элементов) -->
+    <div class="main-content" id="mainContent">
+        <p class="text-center text-gray-500 text-lg py-12" id="emptyContentMessage">
+            Нажмите "Создать элемент" в меню, чтобы начать!
+        </p>
+    </div>
+
+    <!-- Модальное окно для настроек элемента -->
+    <div id="elementSettingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal-btn" id="closeModalBtn">&times;</span>
+            <h2 class="text-2xl font-extrabold mb-5 text-white text-center">Настройки элемента</h2>
+
+            <label for="elementText">Текст:</label>
+            <input type="text" id="elementText" value="Новый элемент">
+            
+            <label for="geminiPrompt" class="sidebar-label mt-2">✨ Запрос для генерации текста:</label>
+            <input type="text" id="geminiPrompt" class="sidebar-input" placeholder="Например: 'заголовок для кнопки регистрации'">
+            <button class="btn-sm" id="generateTextBtn">Сгенерировать текст ✨</button>
+            <div id="geminiLoading" class="hidden text-center text-gray-400 text-sm mt-2">Генерация...</div>
+            <div id="geminiError" class="text-center text-red-400 text-sm mt-2"></div>
+
+            <label for="elementZIndex" class="mt-4">Z-Index:</label>
+            <input type="number" id="elementZIndex" value="1" min="0">
+
+            <div class="settings-section">
+                <h3 class="section-title">Настройки фона элемента</h3>
+                <label for="elementBgColor">Цвет фона:</label>
+                <input type="color" id="elementBgColor" value="#6366f1">
+
+                <label for="elementImageUrl">URL изображения:</label>
+                <input type="text" id="elementImageUrl" placeholder="https://placehold.co/400x300/000000/FFFFFF?text=Element+Bg">
+                <button class="btn-sm" id="applyElementBgImageBtn">Применить URL</button>
+                <label for="elementImageUpload" class="mt-2">Или загрузить локально:</label>
+                <input type="file" id="elementImageUpload">
+                
+                <label for="elementBackgroundSize">Размер фона:</label>
+                <select id="elementBackgroundSize">
+                    <option value="auto">Авто</option>
+                    <option value="cover">Покрыть</option>
+                    <option value="contain">Вписать</option>
+                </select>
+
+                <label for="elementBackgroundRepeat">Повторение фона:</label>
+                <select id="elementBackgroundRepeat">
+                    <option value="no-repeat">Не повторять</option>
+                    <option value="repeat">Повторять</option>
+                    <option value="repeat-x">Повторять по X</option>
+                    <option value="repeat-y">Повторять по Y</option>
+                </select>
+
+                <label for="elementBackgroundPosition">Позиция фона:</label>
+                <select id="elementBackgroundPosition">
+                    <option value="center">Центр</option>
+                    <option value="top left">Вверх влево</option>
+                    <option value="top right">Вверх вправо</option>
+                    <option value="bottom left">Вниз влево</option>
+                    <option value="bottom right">Вниз вправо</option>
+                </select>
+
+                <label for="elementOpacity">Прозрачность:</label>
+                <input type="range" id="elementOpacity" min="0" max="1" step="0.01" value="1">
+                
+                <label for="elementFilterBlur" class="mt-2">Размытие (px):</label>
+                <input type="range" id="elementFilterBlur" min="0" max="10" step="0.1" value="0">
+                <label for="elementFilterGrayscale">Оттенки серого (%):</label>
+                <input type="range" id="elementFilterGrayscale" min="0" max="100" step="1" value="0">
+                <label for="elementFilterBrightness">Яркость (%):</label>
+                <input type="range" id="elementFilterBrightness" min="0" max="200" step="1" value="100">
+                <label for="elementFilterContrast">Контрастность (%):</label>
+                <input type="range" id="elementFilterContrast" min="0" max="200" step="1" value="100">
+                <label for="elementFilterSepia">Сепия (%):</label>
+                <input type="range" id="elementFilterSepia" min="0" max="100" step="1" value="0">
+                <label for="elementFilterHueRotate">Вращение оттенка (deg):</label>
+                <input type="range" id="elementFilterHueRotate" min="0" max="360" step="1" value="0">
+                <label for="elementFilterInvert">Инверсия (%):</label>
+                <input type="range" id="elementFilterInvert" min="0" max="100" step="1" value="0">
+                <label for="elementFilterSaturate">Насыщенность (%):</label>
+                <input type="range" id="elementFilterSaturate" min="0" max="200" step="1" value="100">
+
+                <label for="elementBackgroundAnimation" class="mt-2">Анимация фона:</label>
+                <select id="elementBackgroundAnimation">
+                    <option value="none">Нет</option>
+                    <option value="pan">Панорамирование</option>
+                    <option value="zoom">Масштабирование</option>
+                </select>
+                <label for="elementAnimationDuration" class="mt-2">Скорость анимации (сек):</label>
+                <input type="number" id="elementAnimationDuration" min="1" step="0.5" value="10">
+                <button class="btn-sm mt-2" id="resetElementBgFiltersBtn">Сбросить фильтры элемента</button>
+            </div>
+
+            <div class="settings-section">
+                <h3 class="section-title">Стили текста</h3>
+                <label for="elementTextColor">Цвет текста:</label>
+                <input type="color" id="elementTextColor" value="#ffffff">
+
+                <label for="elementFontFamily">Шрифт:</label>
+                <select id="elementFontFamily">
+                    <option value="Inter, sans-serif">Inter (по умолчанию)</option>
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="Verdana, sans-serif">Verdana</option>
+                    <option value="Times New Roman, serif">Times New Roman</option>
+                    <option value="Courier New, monospace">Courier New</option>
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="Palatino, serif">Palatino</option>
+                    <option value="Garamond, serif">Garamond</option>
+                    <option value="Trebuchet MS, sans-serif">Trebuchet MS</option>
+                    <option value="Impact, sans-serif">Impact</option>
+                    <option value="Tahoma, sans-serif">Tahoma</option>
+                    <option value="Comic Sans MS, cursive">Comic Sans MS</option>
+                </select>
+
+                <label for="elementFontSize">Размер шрифта (px):</label>
+                <input type="number" id="elementFontSize" value="14" min="8">
+
+                <label for="elementFontWeight">Насыщенность шрифта:</label>
+                <select id="elementFontWeight">
+                    <option value="normal">Normal</option>
+                    <option value="bold">Bold</option>
+                    <option value="100">100 (Thin)</option>
+                    <option value="200">200 (Extra Light)</option>
+                    <option value="300">300 (Light)</option>
+                    <option value="400">400 (Regular)</option>
+                    <option value="500">500 (Medium)</option>
+                    <option value="600">600 (Semi Bold)</option>
+                    <option value="700">700 (Bold)</option>
+                    <option value="800">800 (Extra Bold)</option>
+                    <option value="900">900 (Black)</option>
+                </select>
+
+                <label for="elementLetterSpacing">Межбуквенный интервал (px):</label>
+                <input type="number" id="elementLetterSpacing" value="0" step="0.1">
+
+                <label for="elementTextAlign">Выравнивание текста:</label>
+                <select id="elementTextAlign">
+                    <option value="left">Слева</option>
+                    <option value="center">По центру</option>
+                    <option value="right">Справа</option>
+                    <option value="justify">По ширине</option>
+                </select>
+
+                <h4 class="section-subtitle mt-4">Тень текста</h4>
+                <label for="elementTextShadowColor">Цвет тени текста:</label>
+                <input type="color" id="elementTextShadowColor" value="#000000">
+                <label for="elementTextShadowBlur">Размытие (px):</label>
+                <input type="number" id="elementTextShadowBlur" value="0" min="0">
+                <label for="elementTextShadowOffsetX">Смещение X (px):</label>
+                <input type="number" id="elementTextShadowOffsetX" value="0">
+                <label for="elementTextShadowOffsetY">Смещение Y (px):</label>
+                <input type="number" id="elementTextShadowOffsetY" value="0">
+                <button class="btn-sm mt-2" id="resetElementTextShadowBtn">Сбросить тень текста</button>
+            </div>
+
+            <div class="settings-section">
+                <h3 class="section-title">Границы и размеры</h3>
+                <label for="elementBorder">Рамка (например, "2px solid #ccc"):</label>
+                <input type="text" id="elementBorder" value="none">
+                <label for="elementBorderStyle">Стиль границы:</label>
+                <select id="elementBorderStyle">
+                    <option value="none">Нет</option>
+                    <option value="solid">Solid</option>
+                    <option value="dashed">Dashed</option>
+                    <option value="dotted">Dotted</option>
+                    <option value="double">Double</option>
+                    <option value="groove">Groove</option>
+                    <option value="ridge">Ridge</option>
+                    <option value="inset">Inset</option>
+                    <option value="outset">Outset</option>
+                </select>
+
+                <label for="elementBorderRadius">Радиус скругления (px):</label>
+                <input type="number" id="elementBorderRadius" value="8" min="0">
+
+                <label for="elementWidth">Ширина (px, 0 для авто):</label>
+                <input type="number" id="elementWidth" placeholder="0" min="0">
+
+                <label for="elementHeight">Высота (px, 0 для авто):</label>
+                <input type="number" id="elementHeight" placeholder="0" min="0">
+
+                <h4 class="section-subtitle mt-4">Внешние отступы (Margin)</h4>
+                <label for="elementMarginTop">Вверх:</label>
+                <input type="number" id="elementMarginTop" value="0">
+                <select id="elementMarginUnit" class="unit-select">
+                    <option value="px">px</option>
+                    <option value="em">em</option>
+                    <option value="rem">rem</option>
+                    <option value="%">%</option>
+                </select>
+                <label for="elementMarginRight">Вправо:</label>
+                <input type="number" id="elementMarginRight" value="0">
+                <label for="elementMarginBottom">Вниз:</label>
+                <input type="number" id="elementMarginBottom" value="0">
+                <label for="elementMarginLeft">Влево:</label>
+                <input type="number" id="elementMarginLeft" value="0">
+                <button class="btn-sm mt-2" id="resetElementMarginBtn">Сбросить Margin</button>
+
+
+                <h4 class="section-subtitle mt-4">Внутренние отступы (Padding)</h4>
+                <label for="elementPaddingTop">Вверх:</label>
+                <input type="number" id="elementPaddingTop" value="0.7">
+                 <select id="elementPaddingUnit" class="unit-select">
+                    <option value="px">px</option>
+                    <option value="em">em</option>
+                    <option value="rem" selected>rem</option>
+                    <option value="%">%</option>
+                </select>
+                <label for="elementPaddingRight">Вправо:</label>
+                <input type="number" id="elementPaddingRight" value="1.2">
+                <label for="elementPaddingBottom">Вниз:</label>
+                <input type="number" id="elementPaddingBottom" value="0.7">
+                <label for="elementPaddingLeft">Влево:</label>
+                <input type="number" id="elementPaddingLeft" value="1.2">
+                <button class="btn-sm mt-2" id="resetElementPaddingBtn">Сбросить Padding</button>
+
+                <h4 class="section-subtitle mt-4">Тень блока</h4>
+                <label for="elementBoxShadowColor">Цвет тени блока:</label>
+                <input type="color" id="elementBoxShadowColor" value="#000000">
+                <label for="elementBoxShadowOffsetX">Смещение X (px):</label>
+                <input type="number" id="elementBoxShadowOffsetX" value="0">
+                <label for="elementBoxShadowOffsetY">Смещение Y (px):</label>
+                <input type="number" id="elementBoxShadowOffsetY" value="3">
+                <label for="elementBoxShadowBlur">Размытие (px):</label>
+                <input type="number" id="elementBoxShadowBlur" value="10" min="0">
+                <label for="elementBoxShadowSpread">Размер распространения (px):</label>
+                <input type="number" id="elementBoxShadowSpread" value="0">
+                <button class="btn-sm mt-2" id="resetElementBoxShadowBtn">Сбросить тень блока</button>
+            </div>
+
+
+            <div class="flex justify-end mt-6">
+                <button class="btn-delete" id="deleteElementBtn">Удалить</button>
+                <button class="btn-save" id="saveElementSettingsBtn">Сохранить</button>
+                <button class="btn-cancel" id="cancelElementSettingsBtn">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Область для отображения сгенерированного кода -->
+    <div id="generatedCodeDisplay" class="code-display">
+        <button class="close-code-display-btn" id="closeCodeDisplayBtn">&times;</button>
+        <pre><code id="generatedCodeContent"></code></pre>
+    </div>
+
+    <!-- Встроенный JavaScript код (будет заполнен JavaScript'ом) -->
+    <script id="main-script"></script>
+    <!-- Firebase SDK (только для работы с Firestore) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Глобальные переменные, предоставленные Canvas (НЕ ИЗМЕНЯТЬ)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth, currentUserId;
+
+        // Инициализация Firebase и аутентификация
+        async function initFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        currentUserId = user.uid;
+                        console.log("Firebase User ID:", currentUserId);
+                        document.getElementById('userIdDisplay').textContent = currentUserId;
+                        document.getElementById('appIdDisplay').textContent = appId;
+                    } else {
+                        // Если нет пользователя, попробуем войти анонимно или с токеном
+                        try {
+                            if (initialAuthToken) {
+                                const userCredential = await signInWithCustomToken(auth, initialAuthToken);
+                                currentUserId = userCredential.user.uid;
+                                console.log("Signed in with custom token:", currentUserId);
+                            } else {
+                                const userCredential = await signInAnonymously(auth);
+                                currentUserId = userCredential.user.uid;
+                                console.log("Signed in anonymously:", currentUserId);
+                            }
+                            document.getElementById('userIdDisplay').textContent = currentUserId;
+                            document.getElementById('appIdDisplay').textContent = appId;
+                        } catch (error) {
+                            console.error("Firebase Auth Error:", error);
+                            document.getElementById('statusMessage').textContent = `Ошибка аутентификации: ${error.message}`;
+                            currentUserId = null; // Устанавливаем в null, если аутентификация не удалась
+                        }
+                    }
+                });
+
+                // Прикрепляем Firestore API к глобальному window для доступа из main.js
+                window.firebaseServices = {
+                    db: db,
+                    auth: auth,
+                    getDoc: getDoc,
+                    setDoc: setDoc,
+                    doc: doc,
+                    get currentUserId() { return currentUserId; }, // Геттер для получения актуального userId
+                    get appId() { return appId; }
+                };
+
+                console.log("Firebase initialized and exposed to window.");
+
+            } catch (error) {
+                console.error("Failed to initialize Firebase:", error);
+                document.getElementById('statusMessage').textContent = `Ошибка инициализации Firebase: ${error.message}`;
+            }
+        }
+
+        initFirebase();
+    </script>
+</body>
+</html>
