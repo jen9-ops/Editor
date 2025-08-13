@@ -2,14 +2,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Глобальные переменные, предоставленные Canvas (НЕ ИЗМЕНЯТЬ)
+// Global variables provided by Canvas (DO NOT CHANGE)
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
 let db, auth, currentUserId;
 
-// Инициализация Firebase и аутентификация
+// Firebase initialization and authentication
 async function initFirebase() {
     try {
         const app = initializeApp(firebaseConfig);
@@ -23,7 +23,7 @@ async function initFirebase() {
                 document.getElementById('userIdDisplay').textContent = currentUserId;
                 document.getElementById('appIdDisplay').textContent = appId;
             } else {
-                // Если нет пользователя, попробуем войти анонимно или с токеном
+                // If no user, try to sign in anonymously or with a custom token
                 try {
                     if (initialAuthToken) {
                         const userCredential = await signInWithCustomToken(auth, initialAuthToken);
@@ -39,19 +39,19 @@ async function initFirebase() {
                 } catch (error) {
                     console.error("Firebase Auth Error:", error);
                     document.getElementById('statusMessage').textContent = `Ошибка аутентификации: ${error.message}`;
-                    currentUserId = null; // Устанавливаем в null, если аутентификация не удалась
+                    currentUserId = null; // Set to null if authentication failed
                 }
             }
         });
 
-        // Прикрепляем Firestore API к глобальному window для доступа из main.js
+        // Attach Firestore API to the global window for access from main.js
         window.firebaseServices = {
             db: db,
             auth: auth,
             getDoc: getDoc,
             setDoc: setDoc,
             doc: doc,
-            get currentUserId() { return currentUserId; }, // Геттер для получения актуального userId
+            get currentUserId() { return currentUserId; }, // Getter to get the actual userId
             get appId() { return appId; }
         };
 
