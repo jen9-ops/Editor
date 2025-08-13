@@ -1,5 +1,5 @@
-// Этот код имитирует отдельный файл script.js
-// Он будет динамически вставлен в HTML-документ при загрузке.
+// This code simulates a separate script.js file
+// It will be dynamically inserted into the HTML document upon loading.
 
 document.addEventListener('DOMContentLoaded', function() {
     // Firebase services will be available via window.firebaseServices after the module script loads
@@ -58,13 +58,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const elementZIndex = document.getElementById('elementZIndex');
     const elementBgColor = document.getElementById('elementBgColor');
+    const elementBgAlpha = document.getElementById('elementBgAlpha'); // New: Alpha for element background color
     const elementImageUrl = document.getElementById('elementImageUrl');
     const applyElementBgImageBtn = document.getElementById('applyElementBgImageBtn');
     const elementImageUpload = document.getElementById('elementImageUpload');
     const elementBackgroundSize = document.getElementById('elementBackgroundSize');
     const elementBackgroundRepeat = document.getElementById('elementBackgroundRepeat');
     const elementBackgroundPosition = document.getElementById('elementBackgroundPosition');
-    const elementOpacity = document.getElementById('elementOpacity');
+    const elementOpacity = document.getElementById('elementOpacity'); // Overall element opacity
     const elementFilterBlur = document.getElementById('elementFilterBlur');
     const elementFilterGrayscale = document.getElementById('elementFilterGrayscale');
     const elementFilterBrightness = document.getElementById('elementFilterBrightness');
@@ -84,6 +85,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const elementFontWeight = document.getElementById('elementFontWeight');
     const elementLetterSpacing = document.getElementById('elementLetterSpacing');
     const elementTextAlign = document.getElementById('elementTextAlign');
+    const elementWidth = document.getElementById('elementWidth');
+    const elementHeight = document.getElementById('elementHeight');
+    const stretchWidthBtn = document.getElementById('stretchWidthBtn'); // New: Stretch width button
+    const stretchHeightBtn = document.getElementById('stretchHeightBtn'); // New: Stretch height button
     // Text Shadow
     const elementTextShadowColor = document.getElementById('elementTextShadowColor');
     const elementTextShadowBlur = document.getElementById('elementTextShadowBlur');
@@ -117,13 +122,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Body Background elements (global)
     const bodyBgColorPicker = document.getElementById('bodyBgColorPicker');
+    const bodyBgAlpha = document.getElementById('bodyBgAlpha'); // New: Alpha for body background color
     const bodyBgImageUrl = document.getElementById('bodyBgImageUrl');
     const applyBodyBgImageBtn = document.getElementById('applyBodyBgImageBtn');
     const bodyBgImageUpload = document.getElementById('bodyBgImageUpload');
     const bodyBackgroundSize = document.getElementById('bodyBackgroundSize');
     const bodyBackgroundRepeat = document.getElementById('bodyBackgroundRepeat');
     const bodyBackgroundPosition = document.getElementById('bodyBackgroundPosition');
-    const bodyBackgroundOpacity = document.getElementById('bodyBackgroundOpacity');
+    const bodyBackgroundOpacity = document.getElementById('bodyBackgroundOpacity'); // Overall body opacity
     const bodyFilterBlur = document.getElementById('bodyFilterBlur');
     const bodyFilterGrayscale = document.getElementById('bodyFilterGrayscale');
     const bodyFilterBrightness = document.getElementById('bodyFilterBrightness');
@@ -142,12 +148,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const createdElements = {};
 
     const bodyBackgroundSettings = {
-        backgroundColor: '#e0f2f7',
+        backgroundColor: '#e0f2f7', // Hex color
+        bgAlpha: 1, // New: Alpha for body background color
         imageUrl: '',
         size: 'auto',
         repeat: 'no-repeat',
         position: 'center',
-        opacity: 1,
+        opacity: 1, // Overall body opacity
         filters: {
             blur: 0, grayscale: 0, brightness: 100, contrast: 100,
             sepia: 0, hueRotate: 0, invert: 0, saturate: 100
@@ -170,6 +177,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Helper to convert HEX to RGBA
+    function hexToRgba(hex, alpha) {
+        let r = 0, g = 0, b = 0;
+        // Handle #RRGGBB or #RGB
+        if (hex.length === 7) { // #RRGGBB
+            r = parseInt(hex.substring(1, 3), 16);
+            g = parseInt(hex.substring(3, 5), 16);
+            b = parseInt(hex.substring(5, 7), 16);
+        } else if (hex.length === 4) { // #RGB
+            r = parseInt(hex[1] + hex[1], 16);
+            g = parseInt(hex[2] + hex[2], 16);
+            b = parseInt(hex[3] + hex[3], 16);
+        }
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // Helper to parse RGBA string into hex and alpha
+    function parseRgba(rgbaString) {
+        const parts = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(,\s*([\d.]+))?\)/);
+        if (parts) {
+            const r = parseInt(parts[1]);
+            const g = parseInt(parts[2]);
+            const b = parseInt(parts[3]);
+            const a = parts[5] ? parseFloat(parts[5]) : 1; // Default to 1 if alpha is missing (rgb)
+            const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+            return { hex, alpha: a };
+        }
+        return { hex: '#000000', alpha: 1 }; // Default if parsing fails
+    }
+
     function applyInitialSettingsToInputs() {
         if (elementPaddingUnit) elementPaddingUnit.value = 'rem';
         if (elementMarginUnit) elementMarginUnit.value = 'px';
@@ -177,6 +214,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (elementFontFamily) elementFontFamily.value = 'Inter, sans-serif';
         if (elementFontWeight) elementFontWeight.value = '600';
         if (elementTextAlign) elementTextAlign.value = 'center';
+        // Set default alpha values for newly created elements
+        if (elementBgAlpha) elementBgAlpha.value = 1;
+        if (bodyBgAlpha) bodyBgAlpha.value = 1;
     }
 
     // --- Sidebar and Project Functions ---
@@ -253,9 +293,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Load Body Background Settings
                 Object.assign(bodyBackgroundSettings, projectData.bodyBackground);
+                // Ensure bgAlpha is loaded, default to 1 if not present in old saves
+                if (bodyBackgroundSettings.bgAlpha === undefined) bodyBackgroundSettings.bgAlpha = 1;
+
                 applyBodyBackgroundStyles();
                 // Update Body UI inputs
-                if (bodyBgColorPicker) bodyBgColorPicker.value = bodyBackgroundSettings.backgroundColor;
+                if (bodyBgColorPicker) {
+                    const { hex, alpha } = parseRgba(bodyBackgroundSettings.backgroundColor);
+                    bodyBgColorPicker.value = hex;
+                    bodyBackgroundSettings.backgroundColor = hex; // Store as hex
+                    if (bodyBgAlpha) bodyBgAlpha.value = alpha;
+                    bodyBackgroundSettings.bgAlpha = alpha; // Store alpha
+                }
                 if (bodyBgImageUrl) bodyBgImageUrl.value = bodyBackgroundSettings.imageUrl;
                 if (bodyBackgroundSize) bodyBackgroundSize.value = bodyBackgroundSettings.size;
                 if (bodyBackgroundRepeat) bodyBackgroundRepeat.value = bodyBackgroundSettings.repeat;
@@ -282,6 +331,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (mainContent) {
                         mainContent.appendChild(newElement);
                     }
+
+                    // Ensure bgAlpha is loaded, default to 1 if not present in old saves
+                    if (savedElement.props.bgAlpha === undefined) savedElement.props.bgAlpha = 1;
+                    // Ensure width/height are loaded as strings for '100%' if applicable
+                    if (typeof savedElement.props.width === 'number' && savedElement.props.width === 0) savedElement.props.width = 'auto';
+                    if (typeof savedElement.props.height === 'number' && savedElement.props.height === 0) savedElement.props.height = 'auto';
+
 
                     createdElements[savedElement.id] = {
                         element: newElement,
@@ -336,12 +392,13 @@ document.addEventListener('DOMContentLoaded', function() {
             props: {
                 text: `Элемент ${currentElementId}`,
                 zIndex: 1,
-                bgColor: '#6366f1',
+                bgColor: '#6366f1', // Hex color
+                bgAlpha: 1, // New: Alpha for element background color
                 imageUrl: '',
                 bgSize: 'auto',
                 bgRepeat: 'no-repeat',
                 bgPosition: 'center',
-                opacity: 1,
+                opacity: 1, // Overall element opacity
                 filters: {
                     blur: 0, grayscale: 0, brightness: 100, contrast: 100,
                     sepia: 0, hueRotate: 0, invert: 0, saturate: 100
@@ -361,8 +418,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 boxShadow: { color: 'rgba(0,0,0,0.2)', blur: 10, spread: 0, offsetX: 0, offsetY: 3 },
                 padding: { top: 0.7, right: 1.2, bottom: 0.7, left: 1.2, unit: 'rem' },
                 margin: { top: 0, right: 0, bottom: 0, left: 0, unit: 'px' },
-                width: 0,
-                height: 0,
+                width: 'auto', // Now stores 'auto' or '100%' or px value as string
+                height: 'auto', // Now stores 'auto' or '100%' or px value as string
                 left: Math.max(0, initialLeft),
                 top: Math.max(0, initialTop),
             }
@@ -371,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (mainContent) {
             mainContent.appendChild(newElement);
         } else {
-            console.error('mainContent не найден, не удалось добавить элемент.');
+            console.error('mainContent not found, could not add element.');
             return;
         }
 
@@ -404,12 +461,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Apply properties via CSS variables for dynamic updates
         elementDOM.style.setProperty('--element-z-index', elementProps.zIndex);
-        elementDOM.style.setProperty('--element-bg-color', elementProps.bgColor);
+        elementDOM.style.setProperty('--element-bg-color', hexToRgba(elementProps.bgColor, elementProps.bgAlpha)); // Use RGBA for background color
         elementDOM.style.setProperty('--element-bg-image', elementProps.imageUrl ? `url('${elementProps.imageUrl}')` : 'none');
         elementDOM.style.setProperty('--element-bg-size', elementProps.bgSize);
         elementDOM.style.setProperty('--element-bg-repeat', elementProps.bgRepeat);
         elementDOM.style.setProperty('--element-bg-position', elementProps.bgPosition);
-        elementDOM.style.setProperty('--element-opacity', elementProps.opacity);
+        elementDOM.style.setProperty('--element-opacity', elementProps.opacity); // Overall opacity
 
         const filters = elementProps.filters;
         const filterString = `blur(${filters.blur}px) ` +
@@ -467,6 +524,10 @@ document.addEventListener('DOMContentLoaded', function() {
         elementDOM.style.setProperty('--element-margin-left', `${elementProps.margin.left}${elementProps.margin.unit}`);
         elementDOM.style.margin = `${elementProps.margin.top}${elementProps.margin.unit} ${elementProps.margin.right}${elementProps.margin.unit} ${elementProps.margin.bottom}${elementProps.margin.unit} ${elementProps.margin.left}${elementProps.margin.unit}`; // Direct application
 
+        // Width and Height
+        elementDOM.style.width = elementProps.width; // Can be 'auto', '100%', or 'Npx'
+        elementDOM.style.height = elementProps.height; // Can be 'auto', '100%', or 'Npx'
+
 
         // Update content (text or image)
         while (elementDOM.firstChild) {
@@ -488,12 +549,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Re-add resize handle
         let resizeHandle = elementDOM.querySelector('.resize-handle');
-        if (!resizeHandle) {
-            resizeHandle = document.createElement('div');
-            resizeHandle.className = 'resize-handle';
-            elementDOM.appendChild(resizeHandle);
-            attachResizeListeners(resizeHandle, elementDOM, elementId);
+        // Only show resize handle if width/height are not 100%
+        if (elementProps.width === 'auto' && elementProps.height === 'auto' || (elementProps.width !== '100%' && elementProps.height !== '100%')) {
+             if (!resizeHandle) {
+                resizeHandle = document.createElement('div');
+                resizeHandle.className = 'resize-handle';
+                elementDOM.appendChild(resizeHandle);
+                attachResizeListeners(resizeHandle, elementDOM, elementId);
+            }
+        } else {
+            if (resizeHandle) {
+                resizeHandle.remove();
+            }
         }
+
 
         // Ensure position is valid after size/padding/margin changes
         requestAnimationFrame(() => {
@@ -503,9 +572,18 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const mainContentRect = mainContent.getBoundingClientRect();
             
-            newLeft = Math.max(0, Math.min(newLeft, mainContentRect.width - elementDOM.offsetWidth));
-            newTop = Math.max(0, Math.min(newTop, mainContentRect.height - elementDOM.offsetHeight));
-            
+            // Adjust position if element goes beyond bounds
+            if (elementProps.width === 'auto' || elementProps.width.endsWith('px')) {
+                newLeft = Math.max(0, Math.min(newLeft, mainContentRect.width - elementDOM.offsetWidth));
+            } else if (elementProps.width === '100%') {
+                newLeft = 0; // If 100% width, snap to left edge
+            }
+            if (elementProps.height === 'auto' || elementProps.height.endsWith('px')) {
+                newTop = Math.max(0, Math.min(newTop, mainContentRect.height - elementDOM.offsetHeight));
+            } else if (elementProps.height === '100%') {
+                newTop = 0; // If 100% height, snap to top edge
+            }
+
             elementDOM.style.left = `${newLeft}px`;
             elementDOM.style.top = `${newTop}px`;
             
@@ -536,7 +614,7 @@ document.addEventListener('DOMContentLoaded', function() {
             initialTop = element.offsetTop;
             startX = clientX;
             startY = clientY;
-            e.preventDefault();
+            e.preventDefault(); // Prevent default touch behavior (scrolling)
         };
 
         const drag = (e) => {
@@ -549,6 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let newTop = initialTop + (clientY - startY);
 
             const mainContentRect = mainContent.getBoundingClientRect();
+            // Constrain to mainContent bounds
             newLeft = Math.max(0, Math.min(newLeft, mainContentRect.width - element.offsetWidth));
             newTop = Math.max(0, Math.min(newTop, mainContentRect.height - element.offsetHeight));
 
@@ -582,7 +661,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentTime = new Date().getTime();
             const tapLength = currentTime - lastTapTime;
 
-            if (tapLength < 300 && tapLength > 0) {
+            if (tapLength < 300 && tapLength > 0) { // Double tap detected
                 e.preventDefault();
                 openElementSettings(elementId);
                 lastTapTime = 0;
@@ -592,7 +671,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         element.addEventListener('click', (e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // Prevent mainContent click from deselecting
             selectElement(elementId);
         });
 
@@ -630,10 +709,11 @@ document.addEventListener('DOMContentLoaded', function() {
             let newWidth = initialWidth + (clientX - startX);
             let newHeight = initialHeight + (clientY - startY);
 
-            newWidth = Math.max(50, newWidth);
-            newHeight = Math.max(35, newHeight);
+            newWidth = Math.max(50, newWidth); // Minimum size
+            newHeight = Math.max(35, newHeight); // Minimum size
 
             const mainContentRect = mainContent.getBoundingClientRect();
+            // Constrain to mainContent bounds
             const maxPossibleWidth = mainContentRect.width - initialLeft;
             const maxPossibleHeight = mainContentRect.height - initialTop;
 
@@ -643,8 +723,8 @@ document.addEventListener('DOMContentLoaded', function() {
             element.style.width = `${newWidth}px`;
             element.style.height = `${newHeight}px`;
 
-            createdElements[elementId].props.width = newWidth;
-            createdElements[elementId].props.height = newHeight;
+            createdElements[elementId].props.width = `${newWidth}px`; // Store as 'Npx' string
+            createdElements[elementId].props.height = `${newHeight}px`; // Store as 'Npx' string
             updateGeneratedCode();
         };
 
@@ -680,7 +760,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (geminiError) geminiError.textContent = ''; // Clear error
 
         elementZIndex.value = elementProps.zIndex;
-        elementBgColor.value = elementProps.bgColor;
+        // Background Color with Alpha
+        if (elementBgColor) elementBgColor.value = elementProps.bgColor; // Hex
+        if (elementBgAlpha) elementBgAlpha.value = elementProps.bgAlpha; // Alpha
+
         elementImageUrl.value = elementProps.imageUrl;
         elementBackgroundSize.value = elementProps.bgSize;
         elementBackgroundRepeat.value = elementProps.bgRepeat;
@@ -703,15 +786,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         elementTextColor.value = elementProps.textColor;
         elementBorder.value = elementProps.border;
-        elementBorderStyle.value = elementProps.borderStyle;
+        elementBorderStyle.value = elementBorderStyle.value;
         elementBorderRadius.value = elementProps.borderRadius;
         elementFontSize.value = elementProps.fontSize;
         elementFontFamily.value = elementProps.fontFamily;
         elementFontWeight.value = elementProps.fontWeight;
         elementLetterSpacing.value = elementProps.letterSpacing;
         elementTextAlign.value = elementProps.textAlign;
-        elementWidth.value = elementProps.width === 0 ? '' : elementProps.width;
-        elementHeight.value = elementProps.height === 0 ? '' : elementProps.height;
+        // Width and Height: Display actual value or empty string for 'auto'/'100%'
+        elementWidth.value = elementProps.width.endsWith('px') ? parseInt(elementProps.width) : '';
+        elementHeight.value = elementProps.height.endsWith('px') ? parseInt(elementProps.height) : '';
 
         // Text Shadow
         elementTextShadowColor.value = elementProps.textShadow.color;
@@ -765,7 +849,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update properties from inputs
         elementProps.text = elementText.value;
         elementProps.zIndex = parseInt(elementZIndex.value) || 1;
-        elementProps.bgColor = elementBgColor.value;
+        elementProps.bgColor = elementBgColor.value; // Store hex
+        elementProps.bgAlpha = parseFloat(elementBgAlpha.value); // Store alpha
         elementProps.imageUrl = elementImageUrl.value;
         elementProps.bgSize = elementBackgroundSize.value;
         elementProps.bgRepeat = elementBackgroundRepeat.value;
@@ -795,8 +880,9 @@ document.addEventListener('DOMContentLoaded', function() {
         elementProps.fontWeight = elementFontWeight.value;
         elementProps.letterSpacing = parseFloat(elementLetterSpacing.value) || 0;
         elementProps.textAlign = elementTextAlign.value;
-        elementProps.width = elementWidth.value === '' || parseInt(elementWidth.value) === 0 ? 0 : parseInt(elementWidth.value);
-        elementProps.height = elementHeight.value === '' || parseInt(elementHeight.value) === 0 ? 0 : parseInt(elementHeight.value);
+        // Width and Height: Convert empty string to 'auto', otherwise px or '%' string
+        elementProps.width = elementWidth.value === '' ? 'auto' : `${parseInt(elementWidth.value)}px`;
+        elementProps.height = elementHeight.value === '' ? 'auto' : `${parseInt(elementHeight.value)}px`;
 
         // Text Shadow
         elementProps.textShadow.color = elementTextShadowColor.value;
@@ -916,12 +1002,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const bodyStyle = document.body.style;
         const bbs = bodyBackgroundSettings;
 
-        bodyStyle.setProperty('--body-background-color', bbs.backgroundColor);
+        bodyStyle.setProperty('--body-background-color', hexToRgba(bbs.backgroundColor, bbs.bgAlpha)); // Use RGBA for body background color
         bodyStyle.setProperty('--body-background-image', bbs.imageUrl ? `url('${bbs.imageUrl}')` : 'none');
         bodyStyle.setProperty('--body-background-size', bbs.size);
         bodyStyle.setProperty('--body-background-repeat', bbs.repeat);
         bodyStyle.setProperty('--body-background-position', bbs.position);
-        bodyStyle.setProperty('--body-background-opacity', bbs.opacity);
+        bodyStyle.setProperty('--body-background-opacity', bbs.opacity); // Overall body opacity
 
         const filters = bbs.filters;
         const filterString = `blur(${filters.blur}px) ` +
@@ -959,6 +1045,7 @@ document.addEventListener('DOMContentLoaded', function() {
         bodyBackgroundSettings.repeat = 'no-repeat';
         bodyBackgroundSettings.position = 'center';
         bodyBackgroundSettings.backgroundColor = '#e0f2f7';
+        bodyBackgroundSettings.bgAlpha = 1; // Reset alpha too
         bodyBackgroundSettings.opacity = 1;
         bodyBackgroundSettings.animation = 'none';
         bodyBackgroundSettings.animationDuration = 10;
@@ -970,6 +1057,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (bodyBackgroundRepeat) bodyBackgroundRepeat.value = 'no-repeat';
         if (bodyBackgroundPosition) bodyBackgroundPosition.value = 'center';
         if (bodyBgColorPicker) bodyBgColorPicker.value = '#e0f2f7';
+        if (bodyBgAlpha) bodyBgAlpha.value = 1;
         if (bodyBackgroundOpacity) bodyBackgroundOpacity.value = 1;
         if (bodyBackgroundAnimation) bodyBackgroundAnimation.value = 'none';
         if (bodyAnimationDuration) bodyAnimationDuration.value = 10;
@@ -1101,7 +1189,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // CSS for <body> (page background)
         cssCode += `/* Styles for <body> (page background) */\n`;
         cssCode += `body {\n`;
-        cssCode += `    background-color: ${bbs.backgroundColor};\n`;
+        cssCode += `    background-color: ${hexToRgba(bbs.backgroundColor, bbs.bgAlpha)};\n`; // Use RGBA
         if (bbs.imageUrl) {
             cssCode += `    background-image: url('${bbs.imageUrl}');\n`;
         }
@@ -1141,8 +1229,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 continue;
             }
 
-            const currentWidth = elementProps.width === 0 ? 'auto' : `${elementProps.width}px`;
-            const currentHeight = elementProps.height === 0 ? 'auto' : `${elementProps.height}px`;
+            const currentWidth = elementProps.width.endsWith('px') ? `${parseInt(elementProps.width)}px` : elementProps.width;
+            const currentHeight = elementProps.height.endsWith('px') ? `${parseInt(elementProps.height)}px` : elementProps.height;
+            
 
             let contentHtml = elementProps.text;
             if (elementProps.imageUrl && elementProps.bgSize === 'auto') {
@@ -1166,7 +1255,7 @@ document.addEventListener('DOMContentLoaded', function() {
             htmlCode += `    left: ${elementProps.left}px;\n`;
             htmlCode += `    top: ${elementProps.top}px;\n`;
             htmlCode += `    z-index: ${elementProps.zIndex};\n`;
-            htmlCode += `    background-color: ${elementProps.bgColor};\n`;
+            htmlCode += `    background-color: ${hexToRgba(elementProps.bgColor, elementProps.bgAlpha)};\n`; // Use RGBA
             if (elementProps.imageUrl) {
                 htmlCode += `    background-image: url('${elementProps.imageUrl}');\n`;
             }
@@ -1237,6 +1326,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .designer-element.selected {
     outline: 2px dashed #3b82f6;
     outline-offset: 4px;
+    box-shadow: 0 0 10px 5px rgba(59, 130, 246, 0.5); /* Добавляем легкое свечение при выборе */
 }
 .designer-element img {
     max-width: 100%;
@@ -1321,7 +1411,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (generateTextBtn) generateTextBtn.addEventListener('click', generateTextForElement);
 
     if (elementZIndex) elementZIndex.addEventListener('input', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.zIndex = parseInt(e.target.value) || 1; applyElementSettings(activeEditingElementId); });
+    
+    // Element Background Color and Alpha
     if (elementBgColor) elementBgColor.addEventListener('input', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.bgColor = e.target.value; applyElementSettings(activeEditingElementId); });
+    if (elementBgAlpha) elementBgAlpha.addEventListener('input', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.bgAlpha = parseFloat(e.target.value); applyElementSettings(activeEditingElementId); });
+
     if (elementImageUrl) elementImageUrl.addEventListener('input', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.imageUrl = e.target.value; applyElementSettings(activeEditingElementId); });
     if (applyElementBgImageBtn) applyElementBgImageBtn.addEventListener('click', () => { if(activeEditingElementId && elementImageUrl) { createdElements[activeEditingElementId].props.imageUrl = elementImageUrl.value; applyElementSettings(activeEditingElementId); } });
     if (elementImageUpload) elementImageUpload.addEventListener('change', (e) => {
@@ -1383,8 +1477,22 @@ document.addEventListener('DOMContentLoaded', function() {
     if (elementBorder) elementBorder.addEventListener('input', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.border = e.target.value; applyElementSettings(activeEditingElementId); });
     if (elementBorderStyle) elementBorderStyle.addEventListener('change', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.borderStyle = e.target.value; applyElementSettings(activeEditingElementId); });
     if (elementBorderRadius) elementBorderRadius.addEventListener('input', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.borderRadius = parseInt(e.target.value) || 0; applyElementSettings(activeEditingElementId); });
-    if (elementWidth) elementWidth.addEventListener('input', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.width = parseInt(e.target.value) || 0; applyElementSettings(activeEditingElementId); });
-    if (elementHeight) elementHeight.addEventListener('input', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.height = parseInt(e.target.value) || 0; applyElementSettings(activeEditingElementId); });
+    if (elementWidth) elementWidth.addEventListener('input', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.width = e.target.value === '' ? 'auto' : `${parseInt(e.target.value)}px`; applyElementSettings(activeEditingElementId); });
+    if (elementHeight) elementHeight.addEventListener('input', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.height = e.target.value === '' ? 'auto' : `${parseInt(e.target.value)}px`; applyElementSettings(activeEditingElementId); });
+    if (stretchWidthBtn) stretchWidthBtn.addEventListener('click', () => {
+        if(activeEditingElementId) {
+            createdElements[activeEditingElementId].props.width = '100%';
+            elementWidth.value = ''; // Clear px input if set to 100%
+            applyElementSettings(activeEditingElementId);
+        }
+    });
+    if (stretchHeightBtn) stretchHeightBtn.addEventListener('click', () => {
+        if(activeEditingElementId) {
+            createdElements[activeEditingElementId].props.height = '100%';
+            elementHeight.value = ''; // Clear px input if set to 100%
+            applyElementSettings(activeEditingElementId);
+        }
+    });
 
     // Padding
     if (elementPaddingTop) elementPaddingTop.addEventListener('input', (e) => { if(activeEditingElementId) createdElements[activeEditingElementId].props.padding.top = parseFloat(e.target.value) || 0; applyElementSettings(activeEditingElementId); });
@@ -1405,6 +1513,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Body Background event listeners (global)
     if (bodyBgColorPicker) bodyBgColorPicker.addEventListener('input', (e) => { bodyBackgroundSettings.backgroundColor = e.target.value; applyBodyBackgroundStyles(); });
+    if (bodyBgAlpha) bodyBgAlpha.addEventListener('input', (e) => { bodyBackgroundSettings.bgAlpha = parseFloat(e.target.value); applyBodyBackgroundStyles(); }); // New: Body background alpha
     if (applyBodyBgImageBtn) {
         applyBodyBgImageBtn.addEventListener('click', () => {
             if (bodyBgImageUrl) {
@@ -1488,24 +1597,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const mainContentRect = mainContent.getBoundingClientRect();
 
-            newLeft = Math.max(0, Math.min(newLeft, mainContentRect.width - newWidth));
-            newTop = Math.max(0, Math.min(newTop, mainContentRect.height - newHeight));
-
-            elementDOM.style.left = `${newLeft}px`;
-            elementDOM.style.top = `${newTop}px`;
-            
-            elementProps.left = newLeft;
-            elementProps.top = newTop;
-            
-            if (elementProps.width !== 0) {
-                newWidth = Math.min(newWidth, mainContentRect.width - newLeft);
-                elementDOM.style.width = `${newWidth}px`;
-                elementProps.width = newWidth;
+            // Only adjust position if element is not set to 100% width/height
+            if (elementProps.width !== '100%') {
+                newLeft = Math.max(0, Math.min(newLeft, mainContentRect.width - newWidth));
+                elementDOM.style.left = `${newLeft}px`;
+                elementProps.left = newLeft; // Update stored property
+            } else {
+                elementDOM.style.left = `0px`; // Snap to left if 100% width
+                elementProps.left = 0;
             }
-            if (elementProps.height !== 0) {
-                newHeight = Math.min(newHeight, mainContentRect.height - newTop);
-                elementDOM.style.height = `${newHeight}px`;
-                elementProps.height = newHeight;
+
+            if (elementProps.height !== '100%') {
+                newTop = Math.max(0, Math.min(newTop, mainContentRect.height - newHeight));
+                elementDOM.style.top = `${newTop}px`;
+                elementProps.top = newTop; // Update stored property
+            } else {
+                elementDOM.style.top = `0px`; // Snap to top if 100% height
+                elementProps.top = 0;
+            }
+            
+            // Adjust size for 'auto' or 'Npx' if parent size changes
+            if (elementProps.width !== '100%') { // Only adjust if not fixed 100%
+                newWidth = Math.min(newWidth, mainContentRect.width - elementProps.left);
+                if (elementProps.width.endsWith('px')) { // If it was a fixed px width, adjust
+                    elementDOM.style.width = `${newWidth}px`;
+                    elementProps.width = `${newWidth}px`;
+                }
+            }
+            if (elementProps.height !== '100%') { // Only adjust if not fixed 100%
+                newHeight = Math.min(newHeight, mainContentRect.height - elementProps.top);
+                if (elementProps.height.endsWith('px')) { // If it was a fixed px height, adjust
+                    elementDOM.style.height = `${newHeight}px`;
+                    elementProps.height = `${newHeight}px`;
+                }
             }
         }
         updateGeneratedCode();
