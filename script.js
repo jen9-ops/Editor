@@ -5,10 +5,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Firebase services will be available via window.firebaseServices after the module script loads
     let db, auth, currentUserId, appId;
 
+    // Wait for Firebase to be initialized and user authenticated
     const waitForFirebase = () => {
         return new Promise((resolve) => {
             const check = () => {
-                if (window.firebaseServices && window.firebaseServices.db && window.firebaseServices.auth && window.firebaseServices.currentUserId) {
+                // Ensure all necessary Firebase properties are available
+                if (window.firebaseServices && window.firebaseServices.db && 
+                    window.firebaseServices.auth && window.firebaseServices.currentUserId !== undefined) {
                     db = window.firebaseServices.db;
                     auth = window.firebaseServices.auth;
                     currentUserId = window.firebaseServices.currentUserId;
@@ -48,10 +51,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Element properties inputs (within modal)
     const elementText = document.getElementById('elementText');
-    const geminiPrompt = document.getElementById('geminiPrompt'); // New LLM related
-    const generateTextBtn = document.getElementById('generateTextBtn'); // New LLM related
-    const geminiLoading = document.getElementById('geminiLoading'); // New LLM related
-    const geminiError = document.getElementById('geminiError'); // New LLM related
+    const geminiPrompt = document.getElementById('geminiPrompt'); // LLM related
+    const generateTextBtn = document.getElementById('generateTextBtn'); // LLM related
+    const geminiLoading = document.getElementById('geminiLoading'); // LLM related
+    const geminiError = document.getElementById('geminiError'); // LLM related
 
     const elementZIndex = document.getElementById('elementZIndex');
     const elementBgColor = document.getElementById('elementBgColor');
@@ -194,6 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function saveProject() {
+        await waitForFirebase(); // Ensure Firebase is ready
         if (!currentUserId || !db) {
             showStatus('Ошибка: Пользователь не аутентифицирован или Firestore не инициализирован.', 'error');
             return;
@@ -210,8 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }))
             };
             
-            // Сохраняем проект в Firestore
-            // Path: /artifacts/{appId}/users/{userId}/projects/myProject
+            // Save project to Firestore
             const projectDocRef = window.firebaseServices.doc(db, 'artifacts', appId, 'users', currentUserId, 'projects', 'myProject');
             await window.firebaseServices.setDoc(projectDocRef, projectData);
             showStatus('Проект успешно сохранен!', 'success');
@@ -222,6 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function loadProject() {
+        await waitForFirebase(); // Ensure Firebase is ready
         if (!currentUserId || !db) {
             showStatus('Ошибка: Пользователь не аутентифицирован или Firestore не инициализирован.', 'error');
             return;
@@ -670,6 +674,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Populate inputs with current element properties
         elementText.value = elementProps.text;
+        // LLM related
+        if (geminiPrompt) geminiPrompt.value = ''; // Clear prompt field when opening
+        if (geminiLoading) geminiLoading.classList.add('hidden'); // Hide loading
+        if (geminiError) geminiError.textContent = ''; // Clear error
+
         elementZIndex.value = elementProps.zIndex;
         elementBgColor.value = elementProps.bgColor;
         elementImageUrl.value = elementProps.imageUrl;
